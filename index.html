@@ -1,0 +1,1255 @@
+<html>
+<head>
+  <base href>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Festa de Anivers&#xe1;rio - Isa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Satisfy&amp;display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+      background: url('https://i.ibb.co/W2LB0X9/09f8b2c2-45e8-4eef-aa15-924b69e8ef8c.jpg') no-repeat center center;
+      background-size: cover;
+      transition: background-image 1s ease;
+    }
+
+    #game-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    #dialogue-box {
+      width: 90%;
+      background: rgba(0, 0, 0, 0.8); 
+      color: white;
+      border: 2px solid white;
+      border-radius: 10px;
+      position: absolute;
+      bottom: 15%;  
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      z-index: 1000;
+    }
+
+    #choices-container {
+      display: none;
+      width: 90%;
+      position: absolute;
+      bottom: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      gap: 10px;
+      flex-direction: column;
+    }
+
+    .choice-btn {
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      border: 2px solid white;
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.2s;
+    }
+
+    .choice-btn:hover {
+      transform: scale(1.02);
+    }
+
+    #character-name {
+      font-weight: bold;
+      color: #9370DB;
+    }
+
+    #character-sprite {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 85vh;
+    }
+
+    #gift-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #gift-box {
+      display: none;
+      width: 200px;
+      height: 200px;
+      background: #888888;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    #gift-box:hover {
+      transform: scale(1.05); 
+    }
+
+    #gift-image {
+      display: none;
+      max-width: 90%;
+      max-height: 90vh;
+      position: relative;
+      border-radius: 10px;
+    }
+
+    #close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 2001;
+      padding: 5px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+    }
+
+    #close-button:hover {
+      background: rgba(0,0,0,0.8);
+    }
+
+    .gift-container {
+      position: relative;
+    }
+
+    .navigation-button {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1001;
+      transition: transform 0.3s ease;
+    }
+
+    .navigation-button img {
+      width: 60px;
+      height: auto;
+    }
+
+    .navigation-button:hover {
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .button-tooltip {
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin-right: 10px;
+      font-size: 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .navigation-button:hover .button-tooltip {
+      opacity: 1;
+    }
+
+    #letter-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #letter-content {
+      font-family: 'Satisfy', cursive;
+      font-size: 1.2em;
+      line-height: 1.5;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 80%;
+      position: relative;
+      white-space: pre-line;
+    }
+
+    @media (max-width: 768px) {
+      #dialogue-box, #choices-container {
+        width: 95%;
+        font-size: 1rem;
+        bottom: 15%;  
+        padding: 12px;
+      }
+      
+      #character-sprite {
+        height: 60vh;
+      }
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const kitchenDialogues = [{
+        name: "Nathaniel",
+        text: "Pensei que você poderia usar para seus escritos. Sei que tem interesse em literatura.",
+        nameColor: "#daa520",
+        sprite: "https://i.ibb.co/vxkJbvkF/1039-ef7ea3bb23e03e8b.png",
+        background: "https://i.ibb.co/Gn8JZdv/3d21764041e4ad2c729d542a328f2cdc.jpg"
+      }, {
+        name: "Rosalya",
+        text: "Que capa linda!",
+        nameColor: "#9ca3d6",
+        sprite: "https://i.ibb.co/VLNBqQK/Rosalya-Baile2.png"
+      }, {
+        name: "Castiel",
+        text: "Uau, que...original",
+        nameColor: "#ff4d4d",
+        sprite: "https://i.ibb.co/Cv0msc9/1046-4fa606589933c050-1.png"
+      }, {
+        name: "Nathaniel",
+        text: "Alguma objeção ao meu presente?",
+        nameColor: "#daa520",
+        sprite: "https://i.ibb.co/hxMgkpSp/61-Sem-T-tulo-20250615175830.png"
+      }, {
+        name: "Castiel",
+        text: "Objeção? Por que eu teria uma objeção? Só acho engraçado como você sempre aparece querendo impressionar.",
+        nameColor: "#ff4d4d",
+        sprite: "https://i.ibb.co/Cv0msc9/1046-4fa606589933c050-1.png"
+      }, {
+        name: "Nathaniel",
+        text: "Impressionar? Interessante perspectiva Castiel.",
+        nameColor: "#daa520",
+        sprite: "https://i.ibb.co/8Lb5Ptz4/61-Sem-T-tulo-20250614095434.png"
+      }, {
+        name: "Nathaniel",
+        text: "Talvez você devesse tentar se esforçar mais também.",
+        nameColor: "#daa520",
+        sprite: "https://i.ibb.co/vxkJbvkF/1039-ef7ea3bb23e03e8b.png"
+      }, {
+        name: "Priya",
+        text: "Pessoal...",
+        nameColor: "#9AFFFF",
+        sprite: "https://i.ibb.co/HprB3sR/Priya-Baile2.png"
+      }, {
+        name: "Castiel",
+        text: "Tch! Sempre com essa sua superioridade, né?",
+        nameColor: "#ff4d4d",
+        sprite: "https://i.ibb.co/Cv0msc9/1046-4fa606589933c050-1.png"
+      }, {
+        name: "Nathaniel",
+        text: "Não é superioridade, Castiel. É apenas maturidade.",
+        nameColor: "#daa520",
+        sprite: "https://i.ibb.co/vxkJbvkF/1039-ef7ea3bb23e03e8b.png"
+      }, {
+        name: "Isa",
+        text: "(Claro que eles tinham que transformar tudo em uma batalha de egos.)",
+        sprite: "https://i.ibb.co/spMmN7YC/49-Sem-T-tulo-20250406063555.png"
+      }, {
+        name: "Isa",
+        text: "(Parabéns pra mim, né? A estrela da festa completamente ignorada porque dois caras não conseguem superar o passado)",
+        sprite: "https://i.ibb.co/spMmN7YC/49-Sem-T-tulo-20250406063555.png"
+      }, {
+        name: "Isa",
+        text: "(Nina aparece correndo com o celular na mão)",
+        sprite: "https://i.ibb.co/ymjdBbLf/214-2b72c9cde980a344.png"
+      }, {
+        name: "Isa",
+        text: "(Finalmente... alguém pra acabar com essa palhaçada)",
+        sprite: "https://i.ibb.co/cht2Gkgs/212-55913975438e96de.png"
+      }, {
+        name: "Nina",
+        text: "Gente! Consegui umas fotos incríveis do Lysandre no palco e...",
+        nameColor: "#eb7fbc",
+        sprite: "https://i.ibb.co/ymjdBbLf/214-2b72c9cde980a344.png"
+      }, {
+        name: "Nina",
+        text: "O que está acontecendo aqui?",
+        nameColor: "#eb7fbc",
+        sprite: "https://i.ibb.co/cht2Gkgs/212-55913975438e96de.png"
+      }, {
+        name: "Priya",
+        text: "Nada demais, Nina. Como estão as fotos?",
+        nameColor: "#9AFFFF",
+        sprite: "https://i.ibb.co/HprB3sR/Priya-Baile2.png"
+      }];
+
+      const choices = [{
+        text: "Podemos te ajudar a procurar!",
+        response: {
+          name: "Lysandre",
+          text: "Seria muito gentil da sua parte",
+          nameColor: "#6c8c94",
+          sprite: "https://i.ibb.co/cvJ07Yd/Lysandre-E36.png"
+        }
+      }, {
+        text: "Onde você esteve pela última vez?",
+        response: {
+          name: "Lysandre",
+          text: "Estive no jardim, depois na cozinha, e passei pelo palco também...",
+          nameColor: "#6c8c94",
+          sprite: "https://i.ibb.co/kctG8Td/Lysandre-E35.png"
+        }
+      }, {
+        text: "Pelo menos não perdeu o convite!",
+        response: {
+          name: "Lysandre",
+          text: "Ah... isso me lembra que preciso encontrá-lo logo.",
+          nameColor: "#6c8c94",
+          sprite: "https://i.ibb.co/VStNPwn/Lysandre-E34.png"
+        }
+      }];
+
+      const choices2 = [{
+        text: "Que dia?",
+        response: {
+          name: "Castiel",
+          text: "Como se você não soubesse...",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }, {
+        text: "O nosso primeiro beijo...",
+        response: {
+          name: "Castiel",
+          text: "Então você não esqueceu.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }, {
+        text: "Estamos aqui para procurar o bloco do Lysandre!",
+        response: {
+          name: "Castiel",
+          text: "O bloco pode esperar mais cinco minutos...",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }];
+
+      const choices3 = [{
+        text: "Como assim?",
+        response: {
+          name: "Castiel",
+          text: "Você ainda fica vermelha igual naquele dia...",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }, {
+        text: "Tipo você ainda ser um provocador?",
+        response: {
+          name: "Castiel",
+          text: "E você ainda cair nas minhas provocações...",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }, {
+        text: "Devíamos realmente procurar o bloco...",
+        response: {
+          name: "Castiel",
+          text: "Tá bem... Mas depois a gente continua essa conversa.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }];
+
+      const choices4 = [{
+        text: "Lysandre...é linda...",
+        response: {
+          name: "Lysandre",
+          text: "Fico feliz que tenha gostado",
+          nameColor: "#6c8c94",
+          sprite: "https://i.ibb.co/zZd9dVv/49-f6b057ea70eff21c.png"
+        }
+      }, {
+        text: "*Abraçar ele em agradecimento*",
+        response: {
+          name: "Lysandre",
+          text: "É o mínimo que eu poderia fazer por uma amiga tão especial...",
+          nameColor: "#6c8c94",
+          sprite: "https://i.ibb.co/zZd9dVv/49-f6b057ea70eff21c.png"
+        }
+      }, {
+        text: "Você escreveu sobre todos nós...",
+        response: {
+          name: "Lysandre",
+          text: "Porque todos aqui fazem parte da sua história",
+          nameColor: "#6c8c94",
+          sprite: "https://i.ibb.co/zZd9dVv/49-f6b057ea70eff21c.png"
+        }
+      }];
+
+      const choices5 = [{
+        text: "Foi mal, Priya...",
+        response: {
+          name: "Priya", 
+          text: "Não precisa se desculpar, é parte do seu charme!",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/Fn5XQR7/Priya-Baile9.png"
+        }
+      }, {
+        text: "Você me conhece bem demais!",
+        response: {
+          name: "Priya",
+          text: "Anos de prática tentando te achar pela escola!",
+          nameColor: "#9AFFFF", 
+          sprite: "https://i.ibb.co/Fn5XQR7/Priya-Baile9.png"
+        }
+      }, {
+        text: "O que você queria me mostrar?",
+        response: {
+          name: "Priya",
+          text: "Sempre direta ao ponto, não é?",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/tJk1b85/Priya-Baile2a.png"
+        }
+      }];
+
+      const choices6 = [{
+        text: "O que significa a azul?",
+        response: {
+          name: "Priya",
+          text: "Proteção... Pra sempre ter alguém olhando por você",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/tJk1b85/Priya-Baile2a.png"
+        }
+      }, {
+        text: "São lindas, Priya!",
+        response: {
+          name: "Priya",
+          text: "Assim como nossa amizade",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/tJk1b85/Priya-Baile2a.png"
+        }
+      }, {
+        text: "*Abraçar Priya emocionada*",
+        response: {
+          name: "Priya",
+          text: "Feliz aniversário, querida",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/tJk1b85/Priya-Baile2a.png"
+        }
+      }];
+
+      const choices7 = [{
+        text: "Nina!? Como você entrou aqui?",
+        response: {
+          name: "Nina",
+          text: "Ah... Eu vi o Lysandre entrando e...bem... o segui!",
+          nameColor: "#eb7fbc",
+          sprite: "https://i.ibb.co/ymjdBbLf/214-2b72c9cde980a344.png"
+        }
+      }, {
+        text: "Você não foi convidada...",
+        response: {
+          name: "Nina",
+          text: "Eu sei, me desculpa! Mas eu precisava ver o Lysandre!",
+          nameColor: "#eb7fbc",
+          sprite: "https://i.ibb.co/zVJ0krjg/670-e50a8a05682948f9.png"
+        }
+      }, {
+        text: "*Olhar surpresa para a Priya*",
+        response: {
+          name: "Priya",
+          text: "Parece que temos uma convidada inesperada...",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/HprB3sR/Priya-Baile2.png"
+        }
+      }];
+
+      const choices8 = [{
+        text: "Nina, você precisa ir embora",
+        response: {
+          name: "Nina",
+          text: "Mas... mas o poema... ele precisa ouvir!",
+          nameColor: "#eb7fbc",
+          sprite: "https://i.ibb.co/zVJ0krjg/670-e50a8a05682948f9.png"
+        }
+      }, {
+        text: "Isso não está certo",
+        response: {
+          name: "Nina",
+          text: "O amor verdadeiro supera qualquer obstáculo!",
+          nameColor: "#eb7fbc",
+          sprite: "https://i.ibb.co/35YXcs60/211-a61d41057783a9e8.png"
+        }
+      }, {
+        text: "*Deixar Priya lidar com a situação*",
+        response: {
+          name: "Priya",
+          text: "Nina, precisamos conversar.",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/HprB3sR/Priya-Baile2.png"
+        }
+      }];
+
+      const choices9 = [{
+        text: "Boa ideia, Priya",
+        response: {
+          name: "Priya",
+          text: "Podemos dar nossa opinião sincera, que tal?",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/fQ58s7D/Priya-Baile3.png"
+        }
+      }, {
+        text: "*Concordar com a cabeça*",
+        response: {
+          name: "Priya",
+          text: "Confie em mim.",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/Fn5XQR7/Priya-Baile9.png"
+        }
+      }, {
+        text: "Você escreve muito bem, Nina",
+        response: {
+          name: "Priya",
+          text: "E adoraríamos ouvir em primeira mão.",
+          nameColor: "#9AFFFF",
+          sprite: "https://i.ibb.co/Fn5XQR7/Priya-Baile9.png"
+        }
+      }];
+
+      const choices10 = [{
+        text: "Nina entrou sem convite na festa...",
+        response: {
+          name: "Castiel",
+          text: "Por que não estou surpreso?",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/Cv0msc9/1046-4fa606589933c050-1.png"
+        }
+      }, {
+        text: "Estamos tentando resolver a situação",
+        response: {
+          name: "Castiel",
+          text: "Resolvo em dois minutos se quiserem.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }, {
+        text: "*Olhar preocupada para Castiel*",
+        response: {
+          name: "Castiel",
+          text: "Não se preocupe, não vou causar uma cena na sua festa.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }];
+
+      const choices11 = [{
+        text: "Castiel como supervisor? *rir*",
+        response: {
+          name: "Castiel",
+          text: "Ei, posso ser responsável quando quero.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }, {
+        text: "É uma ótima ideia!",
+        response: {
+          name: "Castiel",
+          text: "As coisas que faço por você...",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/0JZX2Nk/1047-10773900545b8730-1.png"
+        }
+      }, {
+        text: "Você faria isso por mim, Castiel?",
+        response: {
+          name: "Castiel",
+          text: "Só porque é seu aniversário.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/0JZX2Nk/1047-10773900545b8730-1.png"
+        }
+      }];
+
+      const choices12 = [{
+        text: "Tenho certeza que serão fotos incríveis",
+        response: {
+          name: "Nina",
+          text: "Vou capturar os melhores momentos!",
+          nameColor: "#eb7fbc",
+          sprite: "https://i.ibb.co/ymjdBbLf/214-2b72c9cde980a344.png"
+        }
+      }, {
+        text: "Obrigada por entender, Nina",
+        response: {
+          name: "Nina",
+          text: "Agradeça à Rosa por me convencer sobre o sarau!",
+          nameColor: "#eb7fbc",
+          sprite: "https://i.ibb.co/ymjdBbLf/214-2b72c9cde980a344.png"
+        }
+      }, {
+        text: "*Trocar um olhar cúmplice com Castiel*",
+        response: {
+          name: "Castiel",
+          text: "A noite está salva, garotinha.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/0JZX2Nk/1047-10773900545b8730-1.png"
+        }
+      }];
+
+      const choices13 = [{
+        text: "Mal posso esperar",
+        response: {
+          name: "Castiel",
+          text: "Eu também não.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }, {
+        text: "Você sabe dançar?",
+        response: {
+          name: "Castiel",
+          text: "Você vai descobrir em breve.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }, {
+        text: "*Sorrir feliz*",
+        response: {
+          name: "Castiel",
+          text: "Esse sorriso faz tudo valer a pena.",
+          nameColor: "#ff4d4d",
+          sprite: "https://i.ibb.co/C0mFB9g/1044-9331d33063ea335d-1.png"
+        }
+      }];
+
+      let currentDialogueIndex = 0;
+      const dialogueBox = document.getElementById('dialogue-box');
+      const characterNameElement = document.getElementById('character-name');
+      const dialogueElement = document.getElementById('dialogue');
+      const characterSprite = document.getElementById('character-sprite');
+      const choicesContainer = document.getElementById('choices-container');
+
+      function showDialogue(dialogue) {
+        characterNameElement.textContent = dialogue.name;
+        dialogueElement.textContent = dialogue.text;
+        if (dialogue.nameColor) {
+          characterNameElement.style.color = dialogue.nameColor;
+        } else {
+          characterNameElement.style.color = '#9370DB';
+        }
+        if (!dialogue.keepSprite) {
+          characterSprite.src = dialogue.sprite || '';
+        }
+        if (dialogue.background) {
+          document.body.style.backgroundImage = `url('${dialogue.background}')`;
+        }
+        if (dialogue.showChoices) {
+          showChoices();
+        }
+        if (dialogue.showChoices2) {
+          showChoices2();
+        }
+        if (dialogue.showChoices3) {
+          showChoices3();
+        }
+        if (dialogue.showChoices4) {
+          showChoices4();
+        }
+        if (dialogue.showChoices5) {
+          showChoices5();
+        }
+        if (dialogue.showChoices6) {
+          showChoices6();
+        }
+        if (dialogue.showChoices7) {
+          showChoices7();
+        }
+        if (dialogue.showChoices8) {
+          showChoices8();
+        }
+        if (dialogue.showChoices9) {
+          showChoices9();
+        }
+        if (dialogue.showChoices10) {
+          showChoices10();
+        }
+        if (dialogue.showChoices11) {
+          showChoices11();
+        }
+        if (dialogue.showChoices12) {
+          showChoices12();
+        }
+        if (dialogue.showChoices13) {
+          showChoices13();
+        }
+        if (dialogue.showGift) {
+          const giftOverlay = document.getElementById('gift-overlay');
+          const giftBox = document.getElementById('gift-box');
+          const giftImage = document.getElementById('gift-image');
+          giftOverlay.style.display = 'flex';
+          giftBox.style.display = 'block';
+          giftBox.onclick = () => {
+            giftBox.style.display = 'none';
+            giftImage.style.display = 'block';
+            giftImage.src = 'https://i.ibb.co/17WmWCp/43-Sem-T-tulo-20250119155458.png';
+          };
+          const closeButton = document.querySelector('#gift-overlay #close-button');
+          closeButton.onclick = () => {
+            giftOverlay.style.display = 'none';
+            giftBox.style.display = 'none';
+            giftImage.style.display = 'none';
+          };
+        }
+        if (dialogue.showGameGift) {
+          const giftOverlay = document.createElement('div');
+          giftOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          `;
+          const giftBox = document.createElement('div');
+          giftBox.style.cssText = `
+            width: 200px;
+            height: 200px;
+            background: #888888;
+            cursor: pointer;
+            transition: transform 0.3s;
+          `;
+          const giftImage = document.createElement('img');
+          giftImage.style.cssText = `
+            display: none;
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 10px;
+          `;
+          giftImage.src = 'https://i.ibb.co/y0hCXXJ/images-7.jpg';
+          const closeBtn = document.createElement('button');
+          closeBtn.innerHTML = '&#xd7;';
+          closeBtn.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2001;
+            padding: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+          `;
+          giftBox.onclick = () => {
+            giftBox.style.display = 'none';
+            giftImage.style.display = 'block';
+          };
+          closeBtn.onclick = () => {
+            document.body.removeChild(giftOverlay);
+          };
+          const container = document.createElement('div');
+          container.style.position = 'relative';
+          container.appendChild(giftBox);
+          container.appendChild(giftImage);
+          giftOverlay.appendChild(container);
+          giftOverlay.appendChild(closeBtn);
+          document.body.appendChild(giftOverlay);
+        }
+        if (dialogue.showPriyaGift) {
+          const giftOverlay = document.createElement('div');
+          giftOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          `;
+          const giftBox = document.createElement('div');
+          giftBox.style.cssText = `
+            width: 200px;
+            height: 200px;
+            background: #888888;
+            cursor: pointer;
+            transition: transform 0.3s;
+          `;
+          const giftImage = document.createElement('img');
+          giftImage.style.cssText = `
+            display: none;
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 10px;
+          `;
+          giftImage.src = 'https://i.ibb.co/N2fspT3k/images-8.jpg';
+          const closeBtn = document.createElement('button');
+          closeBtn.innerHTML = '&#xd7;';
+          closeBtn.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2001;
+            padding: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+          `;
+          giftBox.onclick = () => {
+            giftBox.style.display = 'none';
+            giftImage.style.display = 'block';
+          };
+          closeBtn.onclick = () => {
+            document.body.removeChild(giftOverlay);
+          };
+          const container = document.createElement('div');
+          container.style.position = 'relative';
+          container.appendChild(giftBox);
+          container.appendChild(giftImage);
+          giftOverlay.appendChild(container);
+          giftOverlay.appendChild(closeBtn);
+          document.body.appendChild(giftOverlay);
+        }
+        if (dialogue.showNathanielGift) {
+          const giftOverlay = document.createElement('div');
+          giftOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          `;
+          const giftBox = document.createElement('div');
+          giftBox.style.cssText = `
+            width: 200px;
+            height: 200px;
+            background: #888888;
+            cursor: pointer;
+            transition: transform 0.3s;
+          `;
+          const giftImage = document.createElement('img');
+          giftImage.style.cssText = `
+            display: none;
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 10px;
+          `;
+          giftImage.src = 'https://i.ibb.co/dJBdk5Zj/file-000000002858622f9d60a65942884525.png';
+          const closeBtn = document.createElement('button');
+          closeBtn.innerHTML = '&#xd7;';
+          closeBtn.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2001;
+            padding: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+          `;
+          giftBox.onclick = () => {
+            giftBox.style.display = 'none';
+            giftImage.style.display = 'block';
+          };
+          closeBtn.onclick = () => {
+            document.body.removeChild(giftOverlay);
+          };
+          const container = document.createElement('div');
+          container.style.position = 'relative';
+          container.appendChild(giftBox);
+          container.appendChild(giftImage);
+          giftOverlay.appendChild(container);
+          giftOverlay.appendChild(closeBtn);
+          document.body.appendChild(giftOverlay);
+        }
+      }
+
+      function showChoices() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices[choiceIndex].response;
+        if (Array.isArray(response)) {
+          showResponse(response[0]);
+          setTimeout(() => {
+            showResponse(response[1]);
+          }, 2000);
+        } else {
+          showResponse(response);
+        }
+      }
+
+      function showResponse(response) {
+        characterNameElement.textContent = response.name;
+        dialogueElement.textContent = response.text;
+        characterNameElement.style.color = response.nameColor;
+        characterSprite.src = response.sprite;
+      }
+
+      function advanceDialogue() {
+        if (currentDialogueIndex < kitchenDialogues.length) {
+          showDialogue(kitchenDialogues[currentDialogueIndex]);
+          currentDialogueIndex++;
+        }
+      }
+
+      function showChoices2() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices2.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice2(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice2(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices2[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices3() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices3.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice3(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice3(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices3[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices4() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices4.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice4(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice4(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices4[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices5() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices5.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice5(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice5(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices5[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices6() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices6.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice6(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice6(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices6[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices7() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices7.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice7(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice7(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices7[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices8() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices8.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice8(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice8(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices8[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices9() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices9.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice9(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice9(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices9[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices10() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices10.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice10(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice10(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices10[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices11() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices11.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice11(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice11(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices11[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices12() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices12.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice12(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice12(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices12[choiceIndex].response;
+        showResponse(response);
+      }
+
+      function showChoices13() {
+        dialogueBox.style.display = 'none';
+        choicesContainer.style.display = 'flex';
+        choicesContainer.innerHTML = '';
+        choices13.forEach((choice, index) => {
+          const button = document.createElement('button');
+          button.className = 'choice-btn';
+          button.textContent = choice.text;
+          button.onclick = () => handleChoice13(index);
+          choicesContainer.appendChild(button);
+        });
+      }
+
+      function handleChoice13(choiceIndex) {
+        choicesContainer.style.display = 'none';
+        dialogueBox.style.display = 'block';
+        const response = choices13[choiceIndex].response;
+        showResponse(response);
+      }
+
+      dialogueBox.addEventListener('click', advanceDialogue);
+      advanceDialogue();
+    });
+  </script>
+</head>
+<body>
+  <div id="game-container">
+    <img id="character-sprite" alt="character">
+    <div id="dialogue-box">
+      <div id="character-name"></div>
+      <div id="dialogue"></div>
+    </div>
+    <div id="choices-container"></div>
+  </div>
+
+  <div id="gift-overlay">
+    <div class="gift-container">
+      <button id="close-button">&#xd7;</button>
+      <div id="gift-box"></div>
+      <img id="gift-image" src="https://i.ibb.co/x700PvK/OIG1.jpg" alt="Gift">
+    </div>
+  </div>
+
+  <div id="letter-overlay">
+    <div id="letter-content">
+      Para minha melhor amiga Isa!
+
+      Preparei uma cole&#xe7;&#xe3;o de roupas INCR&#xcd;VEL para voc&#xea;!
+
+      S&#xe3;o pe&#xe7;as super coloridas e estilosas que eu mesmo escolhi pensando no seu estilo &#xfa;nico. Tem at&#xe9; algumas pe&#xe7;as combinando com as minhas!
+
+      E o melhor: vamos fazer um desfile de moda particular depois! Vai ser T&#xc3;O divertido!
+
+      Afinal, ningu&#xe9;m entende mais de moda e estilo do que eu!
+
+      Com muito estilo, Alexy &#x1f499;
+      <button id="close-button" style="position: absolute; top: 10px; right: 10px;">&#xd7;</button>
+    </div>
+  </div>
+</body>
+</html>
